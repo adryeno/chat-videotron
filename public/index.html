@@ -117,7 +117,7 @@
            ========================================== */
         body.videotron-mode {
             background-color: rgba(0, 0, 0, 0) !important; 
-            padding: 20px; 
+            padding: 15px; 
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -125,12 +125,12 @@
 
         #displayQrWrapper {
             background: #ffffff;
-            padding: 10px;
+            padding: 8px;
             border: 3px solid #000;
             border-radius: 0px;
             box-shadow: 4px 4px 0px #000;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             align-self: center;
         }
 
@@ -141,15 +141,15 @@
 
         #displayQrWrapper span {
             display: block;
-            margin-top: 5px;
+            margin-top: 4px;
             font-family: 'Fredoka One', cursive;
-            font-size: 14px;
+            font-size: 13px;
             color: #000;
             letter-spacing: 1px;
         }
 
         .videotron-mode #chatBox {
-            height: 85vh; /* Dibuat sedikit lebih tinggi agar muat banyak pesan */
+            height: 92vh; /* Diperbesar agar pas menampung 20 baris pesan */
             border: none;
             border-radius: 0;
             background: transparent;
@@ -168,8 +168,8 @@
             border: none !important;
             border-radius: 0 !important;
             box-shadow: none !important;
-            padding: 2px 0 !important;
-            margin-bottom: 5px !important; /* Jarak antar baris rapat */
+            padding: 0 !important;
+            margin-bottom: 3px !important; /* Jarak antar baris dibuat sangat rapat agar 20 pesan muat */
         }
 
         .videotron-mode .msg::after, 
@@ -178,16 +178,16 @@
         }
 
         .videotron-mode .msg strong {
-            font-size: 20px; 
+            font-size: 19px; 
             text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
             margin-bottom: 0px;
             display: inline;
-            margin-right: 8px;
+            margin-right: 6px;
         }
 
         .videotron-mode .msg span.text {
             color: #ffffff !important; 
-            font-size: 20px;
+            font-size: 19px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
             font-weight: 700;
         }
@@ -263,8 +263,8 @@
                 
                 new QRCode(document.getElementById("displayQrcode"), {
                     text: mobileUrl, 
-                    width: 180, 
-                    height: 180, 
+                    width: 150, 
+                    height: 150, 
                     colorDark : "#000", 
                     colorLight : "#fff",
                     correctLevel: QRCode.CorrectLevel.H
@@ -296,8 +296,6 @@
                 correctLevel: QRCode.CorrectLevel.H
             });
             
-            document.getElementById('roomLink', { roomId }).innerHTML = `<strong>Link HP (Bagikan ke peserta):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
-            // Perbaikan kecil untuk update link admin panel dengan aman
             document.getElementById('roomLink').innerHTML = `<strong>Link HP (Bagikan ke peserta):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
             document.getElementById('displayLink').innerHTML = `<strong>Link vMix/OBS (Masukkan ke Browser Source):</strong><br><a href="${vmixUrl}" target="_blank">${vmixUrl}</a>`;
         });
@@ -340,7 +338,7 @@
             chatBox.scrollTop = chatBox.scrollHeight;
 
             if (document.body.classList.contains('videotron-mode')) {
-                const maxMessages = 20; // DIUBAH: Menampilkan hingga 20 riwayat pesan sekaligus secara rapat ke atas
+                const maxMessages = 20; // Tetap mempertahankan batas 20 riwayat pesan
                 if (chatBox.childElementCount > maxMessages) {
                     chatBox.removeChild(chatBox.firstElementChild);
                 }
