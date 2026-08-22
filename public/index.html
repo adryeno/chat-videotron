@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Live Chat - Comic Style</title>
+    <title>Live Chat - Modern Clean Style</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -37,6 +37,7 @@
             align-items: flex-start; 
         }
         
+        /* TAMPILAN CHAT STANDAR (HP) */
         .msg { 
             position: relative;
             background: #fff;
@@ -47,43 +48,15 @@
             max-width: 90%;
             word-wrap: break-word; 
             box-shadow: 3px 3px 0px #000; 
-            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        .msg::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 18px;
-            border-width: 10px 10px 0;
-            border-style: solid;
-            border-color: #000 transparent transparent transparent;
-            display: block;
-            width: 0;
-        }
-        .msg::before {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: 21px;
-            border-width: 7px 7px 0;
-            border-style: solid;
-            border-color: #fff transparent transparent transparent;
-            display: block;
-            width: 0;
-            z-index: 1;
-        }
-        
         .msg strong { 
             font-family: 'Fredoka One', cursive; 
             font-weight: normal; 
             font-size: 15px; 
             display: block; 
             margin-bottom: 2px; 
-            letter-spacing: 0.5px;
-            text-shadow: 1px 1px 0px #000; 
         }
-        .msg span.text { color: #000; font-weight: 700; font-size: 14px; line-height: 1.3; }
+        .msg span.text { color: #000; font-weight: 700; font-size: 14px; }
 
         input, button { 
             width: 100%; padding: 15px; margin-bottom: 10px; 
@@ -96,22 +69,20 @@
             font-family: 'Fredoka One', cursive; font-size: 18px; letter-spacing: 1px;
             cursor: pointer; text-shadow: 2px 2px 0px #000;
         }
-        button:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000; }
 
         h2 { font-family: 'Fredoka One', cursive; color: #f39c12; text-align: center; text-shadow: 2px 2px 0px #000;}
 
         /* ==========================================
-           TAMPILAN KHUSUS VMIX (QR CODE BERSIH DI ATAS + 10 CHAT RAPAT)
+           TAMPILAN KHUSUS VMIX (TRANSPARAN, TANPA BALON, NAMA: ISI)
            ========================================== */
         body.videotron-mode {
             background-color: rgba(0, 0, 0, 0) !important; 
-            padding: 15px; 
+            padding: 20px; 
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
         }
 
-        /* Kotak QR Code di bagian atas vMix tanpa variasi agar mudah di-scan */
         #displayQrWrapper {
             background: #ffffff;
             padding: 12px;
@@ -119,7 +90,8 @@
             border-radius: 15px;
             box-shadow: 6px 6px 0px #000;
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            align-self: center;
         }
 
         #displayQrCode canvas, #displayQrCode img {
@@ -151,38 +123,40 @@
             width: 100%;
         }
 
+        /* Desain teks bersih tanpa balon (latar belakang transparan) */
         .videotron-mode .msg {
-            margin-bottom: 8px; /* Sangat rapat */
-            padding: 8px 16px;
-            border: 3px solid #000;
-            border-radius: 20px; 
-            box-shadow: 4px 4px 0px #000;
+            background: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            padding: 4px 0 !important;
+            margin-bottom: 8px !important; /* Sangat rapat */
         }
 
-        .videotron-mode .msg::after { bottom: -10px; border-width: 10px 10px 0; }
-        .videotron-mode .msg::before { bottom: -6px; border-width: 7px 7px 0; left: 19px; }
+        /* Menghilangkan ekor balon komik */
+        .videotron-mode .msg::after, 
+        .videotron-mode .msg::before {
+            display: none !important;
+        }
 
         .videotron-mode .msg strong {
-            font-size: 20px; 
-            text-shadow: 2px 2px 0px #000; 
+            font-size: 24px; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
             margin-bottom: 2px;
+            display: inline;
+            margin-right: 10px;
         }
 
         .videotron-mode .msg span.text {
-            color: #000; 
-            font-size: 20px;
-            text-shadow: none; 
-        }
-
-        @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.5) translateY(20px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
+            color: #ffffff !important; /* Teks putih agar kontras dan jelas dibaca di video */
+            font-size: 24px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
+            font-weight: 700;
         }
     </style>
 </head>
 <body>
 
-    <!-- HALAMAN ADMIN PANEL -->
     <div id="homePage">
         <h2>Admin Panel ⚙️</h2>
         <button onclick="createRoom()">Buka Room Baru</button>
@@ -193,16 +167,13 @@
         </div>
     </div>
 
-    <!-- HALAMAN JOIN PESERTA (HP) -->
     <div id="joinPage" class="hidden">
         <h2>Join Obrolan! 💬</h2>
         <input type="text" id="username" placeholder="Siapa namamu?">
         <button onclick="joinRoom()">Gaskeun 🚀</button>
     </div>
 
-    <!-- HALAMAN CHAT / TAMPILAN VMIX -->
     <div id="chatPage" class="hidden">
-        <!-- QR Code khusus di vMix, bersih tanpa variasi agar mudah di-scan -->
         <div id="displayQrWrapper" class="hidden">
             <div id="displayQrcode"></div>
             <span>SCAN TO JOIN!</span>
@@ -222,9 +193,9 @@
         let currentUser = '';
 
         const userColors = [
-            '#FF0055', '#00C3FF', '#FFB800', '#00D152', 
-            '#9933FF', '#FF5500', '#FF00CC', '#00A2FF', 
-            '#FF3300', '#20B2AA', '#FF1493', '#F39C12'
+            '#FF5733', '#33FF57', '#3357FF', '#F39C12', 
+            '#9B59B6', '#00FFFF', '#FF00FF', '#FFFF00', 
+            '#FF6666', '#66FF66', '#6666FF', '#FFA07A'
         ];
 
         function getColorForUser(username) {
@@ -249,11 +220,16 @@
                 currentUser = 'Sistem Display';
                 socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
                 
-                // Tampilkan QR code bersih di atas layar vMix
                 document.getElementById('displayQrWrapper').classList.remove('hidden');
                 const mobileUrl = `${window.location.origin}/?room=${currentRoomId}`;
+                
                 new QRCode(document.getElementById("displayQrcode"), {
-                    text: mobileUrl, width: 130, height: 130, colorDark : "#000", colorLight : "#fff"
+                    text: mobileUrl, 
+                    width: 200, 
+                    height: 200, 
+                    colorDark : "#000", 
+                    colorLight : "#fff",
+                    correctLevel: QRCode.CorrectLevel.H
                 });
 
                 document.getElementById('chatPage').classList.remove('hidden');
@@ -274,7 +250,12 @@
             
             document.getElementById('adminQrcode').innerHTML = '';
             new QRCode(document.getElementById("adminQrcode"), {
-                text: mobileUrl, width: 180, height: 180, colorDark : "#000", colorLight : "#fff"
+                text: mobileUrl, 
+                width: 180, 
+                height: 180, 
+                colorDark : "#000", 
+                colorLight : "#fff",
+                correctLevel: QRCode.CorrectLevel.H
             });
             
             document.getElementById('roomLink').innerHTML = `<strong>Link HP (Bagikan ke peserta):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
@@ -312,14 +293,14 @@
             const userColor = data.username === 'Sistem' ? '#aaaaaa' : getColorForUser(data.username);
             
             if (data.type === 'text') {
-                msgDiv.innerHTML = `<strong style="color: ${userColor};">${data.username}</strong><span class="text">${data.text}</span>`;
+                msgDiv.innerHTML = `<strong style="color: ${userColor};">${data.username}:</strong> <span class="text">${data.text}</span>`;
             }
             
             chatBox.appendChild(msgDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
             if (document.body.classList.contains('videotron-mode')) {
-                const maxMessages = 10; // Batas riwayat chat ditampilkan hingga 10 pesan sekaligus secara rapat
+                const maxMessages = 10; // Memuat hingga 10 riwayat chat secara rapat
                 if (chatBox.childElementCount > maxMessages) {
                     chatBox.removeChild(chatBox.firstElementChild);
                 }
