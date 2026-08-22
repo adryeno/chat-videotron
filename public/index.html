@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Live Chat - Text Only</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@700&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Quicksand', sans-serif; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background-color: #f4f4f9; 
+            color: #333;
+            width: 100%;
+            overflow-x: hidden; 
+        }
+        
+        .hidden { display: none !important; }
+
+        /* ==========================================
+           KOTAK CHAT HP (DIBUAT LEBIH TINGGI KARENA HEADER DIHAPUS)
+           ========================================== */
+        #chatBox { 
+            height: 70vh; /* Tinggi ditambah dari 50vh ke 70vh */
+            border: 3px solid #000;
+            border-radius: 15px; /* Sudut melengkung penuh karena tidak ada header */
+            overflow-y: scroll; 
+            padding: 20px 15px; 
+            margin-bottom: 20px; 
+            background: #eef2f3; 
+            box-shadow: 4px 4px 0px #000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start; 
+        }
+        
+        .msg { 
+            position: relative;
+            background: #fff;
+            border: 3px solid #000;
+            border-radius: 25px; 
+            padding: 12px 18px;
+            margin-bottom: 25px; 
+            max-width: 90%;
+            word-wrap: break-word; 
+            box-shadow: 3px 3px 0px #000; 
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .msg::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 20px;
+            border-width: 12px 12px 0;
+            border-style: solid;
+            border-color: #000 transparent transparent transparent;
+            display: block;
+            width: 0;
+        }
+        .msg::before {
+            content: '';
+            position: absolute;
+            bottom: -7px;
+            left: 23px;
+            border-width: 9px 9px 0;
+            border-style: solid;
+            border-color: #fff transparent transparent transparent;
+            display: block;
+            width: 0;
+            z-index: 1;
+        }
+        
+        .msg strong { 
+            font-family: 'Fredoka One', cursive; 
+            font-weight: normal; 
+            font-size: 17px; 
+            display: block; 
+            margin-bottom: 5px; 
+            letter-spacing: 0.5px;
+            text-shadow: 1px 1px 0px #000; 
+        }
+        .msg span.text { color: #000; font-weight: 700; font-size: 16px; line-height: 1.4; }
+
+        input, button { 
+            width: 100%; padding: 15px; margin-bottom: 10px; 
+            border: 3px solid #000; border-radius: 12px;
+            font-size: 15px; font-family: 'Quicksand', sans-serif; font-weight: 700;
+            box-shadow: 3px 3px 0px #000;
+        }
+        button { 
+            background: #f39c12; color: #fff; border: 3px solid #000; 
+            font-family: 'Fredoka One', cursive; font-size: 18px; letter-spacing: 1px;
+            cursor: pointer; text-shadow: 2px 2px 0px #000;
+        }
+        button:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px #000; }
+
+        h2 { font-family: 'Fredoka One', cursive; color: #f39c12; text-align: center; text-shadow: 2px 2px 0px #000;}
+
+        /* ==========================================
+           TAMPILAN KHUSUS VIDEOTRON (VMIX/OBS)
+           ========================================== */
+        body.videotron-mode {
+            background-color: rgba(0, 0, 0, 0) !important; 
+            padding: 40px; 
+        }
+
+        .videotron-mode #chatBox {
+            height: 75vh;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            overflow-y: hidden; 
+            padding: 0;
+            box-shadow: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; 
+            align-items: flex-start;
+        }
+
+        .videotron-mode .msg {
+            margin-bottom: 35px; 
+            padding: 18px 25px;
+            border: 4px solid #000;
+            border-radius: 35px; 
+            box-shadow: 6px 6px 0px #000;
+        }
+
+        .videotron-mode .msg::after { bottom: -16px; border-width: 16px 16px 0; }
+        .videotron-mode .msg::before { bottom: -10px; border-width: 12px 12px 0; left: 24px; }
+
+        .videotron-mode .msg strong {
+            font-size: 28px; 
+            text-shadow: 2px 2px 0px #000; 
+        }
+
+        .videotron-mode .msg span.text {
+            color: #000; 
+            font-size: 28px;
+            text-shadow: none; 
+        }
+
+        #displayQrContainer {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        #displayQrContainer img {
+            border: 5px solid #000; 
+            border-radius: 15px;
+            box-shadow: 5px 5px 0px #fff;
+            display: inline-block;
+        }
+        #displayQrText {
+            color: #fff; font-family: 'Fredoka One', cursive; font-size: 26px; margin-top: 15px;
+            text-shadow: 3px 3px 0px #000;
+            letter-spacing: 2px;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.5) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="homePage">
+        <h2>Admin Panel ⚙️</h2>
+        <button onclick="createRoom()">Buka Room Baru</button>
+        <div id="adminQrContainer" style="margin-top: 20px; text-align: center;">
+            <div id="adminQrcode" style="display: flex; justify-content: center;"></div>
+            <br>
+            <div id="roomLink" style="background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000; margin-bottom:10px; font-weight: bold;"></div>
+            <div id="displayLink" style="background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000; font-weight: bold;"></div>
+        </div>
+    </div>
+
+    <div id="joinPage" class="hidden">
+        <h2>Join Obrolan! 💬</h2>
+        <input type="text" id="username" placeholder="Siapa namamu?">
+        <button onclick="joinRoom()">Gaskeun 🚀</button>
+    </div>
+
+    <div id="chatPage" class="hidden">
+        <!-- HEADER HP (QR) SUDAH DIHAPUS TOTAL DARI SINI -->
+
+        <div id="displayQrContainer" class="hidden">
+            <div id="videotronQrcode" style="display: flex; justify-content: center;"></div>
+            <div id="displayQrText">SCAN TO JOIN!</div>
+        </div>
+
+        <div id="chatBox"></div>
+
+        <div id="inputArea">
+            <input type="text" id="messageInput" placeholder="Ketik pesan lucu (Kata2nya yang sopan ya 😘)...">
+            <!-- INPUT FILE (KIRIM FOTO) SUDAH DIHAPUS DARI SINI -->
+            <button onclick="sendMessage()">KIRIM PESAN 🚀</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let currentRoomId = '';
+        let currentUser = '';
+
+        const userColors = [
+            '#FF0055', '#00C3FF', '#FFB800', '#00D152', 
+            '#9933FF', '#FF5500', '#FF00CC', '#00A2FF', 
+            '#FF3300', '#20B2AA', '#FF1493', '#F39C12'
+        ];
+
+        function getColorForUser(username) {
+            let hash = 0;
+            for (let i = 0; i < username.length; i++) {
+                hash = username.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const index = Math.abs(hash) % userColors.length;
+            return userColors[index];
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomParam = urlParams.get('room');
+        const isDisplay = urlParams.get('display') === 'true'; 
+
+        if (roomParam) {
+            currentRoomId = roomParam;
+            document.getElementById('homePage').classList.add('hidden');
+            
+            if (isDisplay) {
+                document.body.classList.add('videotron-mode');
+                currentUser = 'Sistem Display';
+                socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
+                
+                document.getElementById('chatPage').classList.remove('hidden');
+                document.getElementById('inputArea').classList.add('hidden'); 
+                document.getElementById('displayQrContainer').classList.remove('hidden'); 
+
+                const mobileUrl = window.location.origin + '/?room=' + currentRoomId;
+                new QRCode(document.getElementById("videotronQrcode"), {
+                    text: mobileUrl, width: 160, height: 160, colorDark : "#000", colorLight : "#fff", correctLevel : QRCode.CorrectLevel.H
+                });
+            } else {
+                document.getElementById('joinPage').classList.remove('hidden');
+            }
+        }
+
+        function createRoom() {
+            socket.emit('createRoom');
+        }
+
+        socket.on('roomCreated', (roomId) => {
+            const baseUrl = window.location.origin;
+            const mobileUrl = `${baseUrl}/?room=${roomId}`;
+            const vmixUrl = `${baseUrl}/?room=${roomId}&display=true`;
+            
+            document.getElementById('adminQrcode').innerHTML = '';
+            new QRCode(document.getElementById("adminQrcode"), {
+                text: mobileUrl, width: 200, height: 200, colorDark : "#000", colorLight : "#fff"
+            });
+            
+            document.getElementById('roomLink').innerHTML = `<strong>Link HP:</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
+            document.getElementById('displayLink').innerHTML = `<strong>Link vMix/OBS:</strong><br><a href="${vmixUrl}" target="_blank">${vmixUrl}</a>`;
+        });
+
+        function joinRoom() {
+            const name = document.getElementById('username').value.trim();
+            if (!name) return alert('Isi nama dulu dong!');
+            currentUser = name;
+            socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
+            
+            document.getElementById('joinPage').classList.add('hidden');
+            document.getElementById('chatPage').classList.remove('hidden');
+            // Logic generate QR mobile dihapus karena headernya dihilangkan
+        }
+
+        function sendMessage() {
+            const text = document.getElementById('messageInput').value;
+            
+            // Logic pengecekan gambar dihapus, hanya mengirim teks
+            if (text.trim() !== '') {
+                socket.emit('sendMessage', {
+                    roomId: currentRoomId, username: currentUser, text: text, type: 'text'
+                });
+            }
+            document.getElementById('messageInput').value = '';
+        }
+
+        socket.on('message', (data) => {
+            if (data.username === 'Sistem' && data.text.includes('Sistem Display')) return;
+
+            const chatBox = document.getElementById('chatBox');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'msg';
+            
+            const userColor = data.username === 'Sistem' ? '#aaaaaa' : getColorForUser(data.username);
+            
+            // Hanya merender pesan teks saja
+            if (data.type === 'text') {
+                msgDiv.innerHTML = `<strong style="color: ${userColor};">${data.username}</strong><span class="text">${data.text}</span>`;
+            } 
+            
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            if (document.body.classList.contains('videotron-mode')) {
+                const maxMessages = 5; 
+                if (chatBox.childElementCount > maxMessages) {
+                    chatBox.removeChild(chatBox.firstElementChild);
+                }
+            }
+        });
+
+        socket.on('roomExpired', () => {
+            alert('Waktu habis! Room sudah ditutup.');
+            window.location.href = '/';
+        });
+        
+        document.getElementById("messageInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
