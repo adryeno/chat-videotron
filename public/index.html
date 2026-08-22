@@ -113,7 +113,7 @@
         h2 { font-family: 'Fredoka One', cursive; color: #f39c12; text-align: center; text-shadow: 2px 2px 0px #000;}
 
         /* ==========================================
-           TAMPILAN KHUSUS VMIX / OBS DISPLAY MODE
+           TAMPILAN KHUSUS OBS DISPLAY MODE
            ========================================== */
         body.videotron-mode {
             background-color: rgba(0, 0, 0, 0) !important; 
@@ -123,6 +123,7 @@
             align-items: flex-start;
             height: 100vh;
             overflow: hidden;
+            margin: 0;
         }
 
         #displayQrWrapper {
@@ -151,8 +152,7 @@
             letter-spacing: 1px;
         }
 
-        /* Menggunakan tinggi fleksibel penuh agar muat persis 20 pesan tanpa terpotong */
-        .videotron-mode #chatBox {
+        #chatBox {
             flex: 1;
             width: 100%;
             border: none;
@@ -278,7 +278,7 @@
                 document.getElementById('chatPage').classList.remove('hidden');
                 document.getElementById('inputArea').classList.add('hidden'); 
             } else {
-                document.getElementById('joinPage').classList.add('hidden');
+                document.getElementById('joinPage').classList.remove('hidden');
             }
         }
 
@@ -343,7 +343,7 @@
             chatBox.scrollTop = chatBox.scrollHeight;
 
             if (document.body.classList.contains('videotron-mode')) {
-                const maxMessages = 20; // Batas tetap 20 riwayat pesan tampil secara penuh
+                const maxMessages = 20; 
                 while (chatBox.childElementCount > maxMessages) {
                     chatBox.removeChild(chatBox.firstElementChild);
                 }
