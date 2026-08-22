@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Live Chat - Text Only</title>
+    <title>Live Chat - Comic Style</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -24,12 +24,12 @@
         .hidden { display: none !important; }
 
         /* ==========================================
-           KOTAK CHAT HP (DIBUAT LEBIH TINGGI KARENA HEADER DIHAPUS)
+           KOTAK CHAT HP
            ========================================== */
         #chatBox { 
-            height: 70vh; /* Tinggi ditambah dari 50vh ke 70vh */
+            height: 70vh; 
             border: 3px solid #000;
-            border-radius: 15px; /* Sudut melengkung penuh karena tidak ada header */
+            border-radius: 15px; 
             overflow-y: scroll; 
             padding: 20px 15px; 
             margin-bottom: 20px; 
@@ -40,6 +40,7 @@
             align-items: flex-start; 
         }
         
+        /* DESAIN BALON KOMIK (SPEECH BUBBLE) */
         .msg { 
             position: relative;
             background: #fff;
@@ -112,7 +113,7 @@
         }
 
         .videotron-mode #chatBox {
-            height: 75vh;
+            height: 85vh; /* Dibuat lebih tinggi karena QR code sudah dihapus */
             border: none;
             border-radius: 0;
             background: transparent;
@@ -147,22 +148,6 @@
             text-shadow: none; 
         }
 
-        #displayQrContainer {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        #displayQrContainer img {
-            border: 5px solid #000; 
-            border-radius: 15px;
-            box-shadow: 5px 5px 0px #fff;
-            display: inline-block;
-        }
-        #displayQrText {
-            color: #fff; font-family: 'Fredoka One', cursive; font-size: 26px; margin-top: 15px;
-            text-shadow: 3px 3px 0px #000;
-            letter-spacing: 2px;
-        }
-
         @keyframes popIn {
             0% { opacity: 0; transform: scale(0.5) translateY(20px); }
             100% { opacity: 1; transform: scale(1) translateY(0); }
@@ -189,18 +174,10 @@
     </div>
 
     <div id="chatPage" class="hidden">
-        <!-- HEADER HP (QR) SUDAH DIHAPUS TOTAL DARI SINI -->
-
-        <div id="displayQrContainer" class="hidden">
-            <div id="videotronQrcode" style="display: flex; justify-content: center;"></div>
-            <div id="displayQrText">SCAN TO JOIN!</div>
-        </div>
-
         <div id="chatBox"></div>
 
         <div id="inputArea">
-            <input type="text" id="messageInput" placeholder="Ketik pesan lucu (Kata2nya yang sopan ya 😘)...">
-            <!-- INPUT FILE (KIRIM FOTO) SUDAH DIHAPUS DARI SINI -->
+            <input type="text" id="messageInput" placeholder="Ketik pesan lucu (Bisa pakai emoji 😍)...">
             <button onclick="sendMessage()">KIRIM PESAN 🚀</button>
         </div>
     </div>
@@ -240,12 +217,6 @@
                 
                 document.getElementById('chatPage').classList.remove('hidden');
                 document.getElementById('inputArea').classList.add('hidden'); 
-                document.getElementById('displayQrContainer').classList.remove('hidden'); 
-
-                const mobileUrl = window.location.origin + '/?room=' + currentRoomId;
-                new QRCode(document.getElementById("videotronQrcode"), {
-                    text: mobileUrl, width: 160, height: 160, colorDark : "#000", colorLight : "#fff", correctLevel : QRCode.CorrectLevel.H
-                });
             } else {
                 document.getElementById('joinPage').classList.remove('hidden');
             }
@@ -277,13 +248,11 @@
             
             document.getElementById('joinPage').classList.add('hidden');
             document.getElementById('chatPage').classList.remove('hidden');
-            // Logic generate QR mobile dihapus karena headernya dihilangkan
         }
 
         function sendMessage() {
             const text = document.getElementById('messageInput').value;
             
-            // Logic pengecekan gambar dihapus, hanya mengirim teks
             if (text.trim() !== '') {
                 socket.emit('sendMessage', {
                     roomId: currentRoomId, username: currentUser, text: text, type: 'text'
@@ -301,10 +270,9 @@
             
             const userColor = data.username === 'Sistem' ? '#aaaaaa' : getColorForUser(data.username);
             
-            // Hanya merender pesan teks saja
             if (data.type === 'text') {
                 msgDiv.innerHTML = `<strong style="color: ${userColor};">${data.username}</strong><span class="text">${data.text}</span>`;
-            } 
+            }
             
             chatBox.appendChild(msgDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
