@@ -23,12 +23,13 @@
         
         .hidden { display: none !important; }
 
+        /* KOTAK CHAT KHUSUS HP (BISA DI-SCROLL NORMAL) */
         #chatBox { 
-            height: 65vh; 
+            height: 62vh; 
             border: 3px solid #000;
             border-radius: 15px; 
             overflow-y: scroll; 
-            padding: 20px 15px; 
+            padding: 15px; 
             margin-bottom: 15px; 
             background: #eef2f3; 
             box-shadow: 4px 4px 0px #000;
@@ -113,7 +114,7 @@
         h2 { font-family: 'Fredoka One', cursive; color: #f39c12; text-align: center; text-shadow: 2px 2px 0px #000;}
 
         /* ==========================================
-           TAMPILAN KHUSUS OBS DISPLAY MODE
+           TAMPILAN KHUSUS OBS / VMIX DISPLAY MODE
            ========================================== */
         body.videotron-mode {
             background-color: rgba(0, 0, 0, 0) !important; 
@@ -126,7 +127,7 @@
             margin: 0;
         }
 
-        #displayQrWrapper {
+        body.videotron-mode #displayQrWrapper {
             background: #ffffff;
             padding: 8px;
             border: 3px solid #000;
@@ -138,12 +139,13 @@
             flex-shrink: 0;
         }
 
-        #displayQrCode canvas, #displayQrCode img {
+        body.videotron-mode #displayQrCode canvas, 
+        body.videotron-mode #displayQrCode img {
             display: block;
             margin: 0 auto;
         }
 
-        #displayQrWrapper span {
+        body.videotron-mode #displayQrWrapper span {
             display: block;
             margin-top: 4px;
             font-family: 'Fredoka One', cursive;
@@ -152,22 +154,24 @@
             letter-spacing: 1px;
         }
 
-        #chatBox {
+        body.videotron-mode #chatBox {
             flex: 1;
             width: 100%;
+            height: auto !important;
             border: none;
             border-radius: 0;
             background: transparent;
-            overflow: hidden; 
+            overflow: hidden !important; 
             padding: 0;
             box-shadow: none;
             display: flex;
             flex-direction: column;
             justify-content: flex-end; 
             align-items: flex-start;
+            margin-bottom: 0;
         }
 
-        .videotron-mode .msg {
+        body.videotron-mode .msg {
             background: transparent !important;
             border: none !important;
             border-radius: 0 !important;
@@ -175,14 +179,15 @@
             padding: 0 !important;
             margin-bottom: 4px !important; 
             flex-shrink: 0;
+            max-width: 100%;
         }
 
-        .videotron-mode .msg::after, 
-        .videotron-mode .msg::before {
+        body.videotron-mode .msg::after, 
+        body.videotron-mode .msg::before {
             display: none !important;
         }
 
-        .videotron-mode .msg strong {
+        body.videotron-mode .msg strong {
             font-size: 18px; 
             text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
             margin-bottom: 0px;
@@ -190,7 +195,7 @@
             margin-right: 6px;
         }
 
-        .videotron-mode .msg span.text {
+        body.videotron-mode .msg span.text {
             color: #ffffff !important; 
             font-size: 18px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
