@@ -121,6 +121,8 @@
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            height: 100vh;
+            overflow: hidden;
         }
 
         #displayQrWrapper {
@@ -132,6 +134,7 @@
             text-align: center;
             margin-bottom: 10px;
             align-self: center;
+            flex-shrink: 0;
         }
 
         #displayQrCode canvas, #displayQrCode img {
@@ -148,19 +151,20 @@
             letter-spacing: 1px;
         }
 
+        /* Menggunakan tinggi fleksibel penuh agar muat persis 20 pesan tanpa terpotong */
         .videotron-mode #chatBox {
-            height: 92vh; /* Diperbesar agar pas menampung 20 baris pesan */
+            flex: 1;
+            width: 100%;
             border: none;
             border-radius: 0;
             background: transparent;
-            overflow-y: hidden; 
+            overflow: hidden; 
             padding: 0;
             box-shadow: none;
             display: flex;
             flex-direction: column;
             justify-content: flex-end; 
             align-items: flex-start;
-            width: 100%;
         }
 
         .videotron-mode .msg {
@@ -169,7 +173,8 @@
             border-radius: 0 !important;
             box-shadow: none !important;
             padding: 0 !important;
-            margin-bottom: 3px !important; /* Jarak antar baris dibuat sangat rapat agar 20 pesan muat */
+            margin-bottom: 4px !important; 
+            flex-shrink: 0;
         }
 
         .videotron-mode .msg::after, 
@@ -178,7 +183,7 @@
         }
 
         .videotron-mode .msg strong {
-            font-size: 19px; 
+            font-size: 18px; 
             text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
             margin-bottom: 0px;
             display: inline;
@@ -187,7 +192,7 @@
 
         .videotron-mode .msg span.text {
             color: #ffffff !important; 
-            font-size: 19px;
+            font-size: 18px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
             font-weight: 700;
         }
@@ -263,8 +268,8 @@
                 
                 new QRCode(document.getElementById("displayQrcode"), {
                     text: mobileUrl, 
-                    width: 150, 
-                    height: 150, 
+                    width: 140, 
+                    height: 140, 
                     colorDark : "#000", 
                     colorLight : "#fff",
                     correctLevel: QRCode.CorrectLevel.H
@@ -273,7 +278,7 @@
                 document.getElementById('chatPage').classList.remove('hidden');
                 document.getElementById('inputArea').classList.add('hidden'); 
             } else {
-                document.getElementById('joinPage').classList.remove('hidden');
+                document.getElementById('joinPage').classList.add('hidden');
             }
         }
 
@@ -338,8 +343,8 @@
             chatBox.scrollTop = chatBox.scrollHeight;
 
             if (document.body.classList.contains('videotron-mode')) {
-                const maxMessages = 20; // Tetap mempertahankan batas 20 riwayat pesan
-                if (chatBox.childElementCount > maxMessages) {
+                const maxMessages = 20; // Batas tetap 20 riwayat pesan tampil secara penuh
+                while (chatBox.childElementCount > maxMessages) {
                     chatBox.removeChild(chatBox.firstElementChild);
                 }
             }
