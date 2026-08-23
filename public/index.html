@@ -231,12 +231,11 @@
 <body>
 
     <div id="homePage">
-        <h2>Admin Panel ⚙️</h2>
-        <button class="main-btn" onclick="createRoom()">Buka Room Baru</button>
-        <div id="adminQrContainer" style="margin-top: 20px; text-align: center;">
+        <h2>Admin Panel ⚙️ (Live Utama)</h2>
+        <div id="adminQrContainer" style="margin-top: 15px; text-align: center;">
             <div id="adminQrcode" style="display: flex; justify-content: center; margin-bottom: 15px;"></div>
-            <div id="roomLink" style="background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000; margin-bottom:10px; font-weight: bold;"></div>
-            <div id="displayLink" style="background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000; font-weight: bold;"></div>
+            <div id="roomLink" style="background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000; margin-bottom:10px; font-weight: bold; word-break: break-all;"></div>
+            <div id="displayLink" style="background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000; font-weight: bold; word-break: break-all;"></div>
         </div>
     </div>
 
@@ -291,6 +290,9 @@
         const roomParam = urlParams.get('room');
         const isDisplay = urlParams.get('display') === 'true'; 
 
+        // MENGGUNAKAN ROOM PERMANEN AGAR TIDAK PERLU KLIK TOMBOL DAN ANTI-RESET
+        const PERMANENT_ROOM = 'main-live-room';
+
         if (roomParam) {
             currentRoomId = roomParam;
             document.getElementById('homePage').classList.add('hidden');
@@ -303,8 +305,6 @@
                 document.getElementById('chatPage').classList.remove('hidden');
                 document.getElementById('inputArea').classList.add('hidden'); 
             } else {
-                // FITUR PENYIMPANAN SESI (LOCALSTORAGE): 
-                // Cek apakah user sebelumnya sudah pernah isi nama di room ini
                 const savedUser = localStorage.getItem('chat_user_' + currentRoomId);
                 if (savedUser) {
                     currentUser = savedUser;
@@ -315,37 +315,34 @@
                     document.getElementById('joinPage').classList.remove('hidden');
                 }
             }
+        } else {
+            // HALAMAN UTAMA ADMIN LANGSUNG MUNCUL OTOMATIS TANPA PERLU KLIK TOMBOL
+            window.addEventListener('DOMContentLoaded', () => {
+                const baseUrl = window.location.origin;
+                const mobileUrl = `${baseUrl}/?room=${PERMANENT_ROOM}`;
+                const obsUrl = `${baseUrl}/?room=${PERMANENT_ROOM}&display=true`;
+                
+                socket.emit('joinRoom', { roomId: PERMANENT_ROOM, username: 'AdminPanel' });
+
+                document.getElementById('adminQrcode').innerHTML = '';
+                new QRCode(document.getElementById("adminQrcode"), {
+                    text: mobileUrl, 
+                    width: 180, 
+                    height: 180, 
+                    colorDark : "#000", 
+                    colorLight : "#fff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                
+                document.getElementById('roomLink').innerHTML = `<strong>Link HP (Permanen):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
+                document.getElementById('displayLink').innerHTML = `<strong>Link OBS (Permanen):</strong><br><a href="${obsUrl}" target="_blank">${obsUrl}</a>`;
+            });
         }
 
-        // AUTO-RECONNECT SOCKET: 
-        // Jika HP bangun dari sleep mode atau internet tersambung kembali, otomatis masuk room lagi
         socket.on('connect', () => {
-            if (currentRoomId && currentUser) {
+            if (currentRoomId && currentUser && currentUser !== 'Sistem Display') {
                 socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
             }
-        });
-
-        function createRoom() {
-            socket.emit('createRoom');
-        }
-
-        socket.on('roomCreated', (roomId) => {
-            const baseUrl = window.location.origin;
-            const mobileUrl = `${baseUrl}/?room=${roomId}`;
-            const vmixUrl = `${baseUrl}/?room=${roomId}&display=true`;
-            
-            document.getElementById('adminQrcode').innerHTML = '';
-            new QRCode(document.getElementById("adminQrcode"), {
-                text: mobileUrl, 
-                width: 180, 
-                height: 180, 
-                colorDark : "#000", 
-                colorLight : "#fff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-            
-            document.getElementById('roomLink').innerHTML = `<strong>Link HP (Bagikan ke peserta):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
-            document.getElementById('displayLink').innerHTML = `<strong>Link vMix/OBS (Masukkan ke Browser Source):</strong><br><a href="${vmixUrl}" target="_blank">${vmixUrl}</a>`;
         });
 
         function joinRoom() {
@@ -353,9 +350,7 @@
             if (!name) return alert('Isi nama dulu dong!');
             currentUser = name;
             
-            // Simpan nama ke memori HP agar aman jika tab ter-refresh
             localStorage.setItem('chat_user_' + currentRoomId, currentUser);
-
             socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
             
             document.getElementById('joinPage').classList.add('hidden');
@@ -370,11 +365,12 @@
                     roomId: currentRoomId, username: currentUser, text: text, type: 'text'
                 });
             }
-            document.getElementById('messageInput'].value = '';
+            document.getElementById('messageInput').value = '';
         }
 
         socket.on('message', (data) => {
             if (data.username === 'Sistem' && data.text.includes('Sistem Display')) return;
+            if (data.username === 'AdminPanel') return;
 
             const chatBox = document.getElementById('chatBox');
             const msgDiv = document.createElement('div');
