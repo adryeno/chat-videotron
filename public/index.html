@@ -130,7 +130,8 @@
             flex-direction: column;
             width: 100%;
             height: 100%;
-            padding: 40px 10px 40px 10px; 
+            /* Padding kiri-kanan diperbesar (25px) agar aman dari garis neon */
+            padding: 40px 25px 40px 25px; 
             box-sizing: border-box;
         }
 
@@ -151,10 +152,12 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-end; 
-            align-items: center; 
+            /* Diubah ke flex-start agar rapi di sisi kiri dalam bingkai */
+            align-items: flex-start; 
             margin-bottom: 0;
         }
 
+        /* GAYA BUBBLE CHAT SEPERTI WHATSAPP */
         body.videotron-mode .msg {
             background: rgba(0, 0, 0, 0.6) !important; 
             backdrop-filter: blur(4px); 
@@ -163,8 +166,11 @@
             padding: 8px 14px !important; 
             margin-bottom: 8px !important; 
             flex-shrink: 0;
-            max-width: 280px !important; 
+            
+            /* Lebar maksimal diperkecil sedikit agar aman tidak menembus batas bingkai */
+            max-width: 230px !important; 
             width: fit-content; 
+            
             word-wrap: break-word; 
             overflow-wrap: break-word;
             white-space: normal;
@@ -181,7 +187,7 @@
         }
 
         body.videotron-mode .msg strong {
-            font-size: 22px; 
+            font-size: 20px; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8); 
             margin-bottom: 2px;
             display: block; 
@@ -189,7 +195,7 @@
 
         body.videotron-mode .msg span.text {
             color: #ffffff !important; 
-            font-size: 24px; 
+            font-size: 22px; 
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8); 
             font-weight: 700;
             line-height: 1.3;
@@ -264,7 +270,6 @@
                 document.getElementById('chatPage').classList.remove('hidden');
                 document.getElementById('inputArea').classList.add('hidden'); 
             } else {
-                // INI PERBAIKANNYA: Pastikan halaman join muncul dengan benar jika dibuka lewat HP
                 document.getElementById('joinPage').classList.remove('hidden');
             }
         }
@@ -289,7 +294,7 @@
             });
             
             document.getElementById('roomLink').innerHTML = `<strong>Link HP (Bagikan ke peserta):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
-            document.getElementById('displayLink').innerHTML = `<strong>Link OBS (Masukkan ke Browser Source):</strong><br><a href="${vmixUrl}" target="_blank">${vmixUrl}</a>`;
+            document.getElementById('displayLink').innerHTML = `<strong>Link vMix/OBS (Masukkan ke Browser Source):</strong><br><a href="${vmixUrl}" target="_blank">${vmixUrl}</a>`;
         });
 
         function joinRoom() {
