@@ -113,6 +113,20 @@
 
         h2 { font-family: 'Fredoka One', cursive; color: #f39c12; text-align: center; text-shadow: 2px 2px 0px #000;}
 
+        /* Gaya teks peringatan di halaman join */
+        .warning-box {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeeba;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 15px;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
         /* ==========================================
            TAMPILAN KHUSUS OBS (BINGKAI NEON & BUBBLE CHAT TRANSPARAN)
            ========================================== */
@@ -130,7 +144,6 @@
             flex-direction: column;
             width: 100%;
             height: 100%;
-            /* Padding kiri-kanan diperbesar (25px) agar aman dari garis neon */
             padding: 40px 25px 40px 25px; 
             box-sizing: border-box;
         }
@@ -152,12 +165,10 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-end; 
-            /* Diubah ke flex-start agar rapi di sisi kiri dalam bingkai */
             align-items: flex-start; 
             margin-bottom: 0;
         }
 
-        /* GAYA BUBBLE CHAT SEPERTI WHATSAPP */
         body.videotron-mode .msg {
             background: rgba(0, 0, 0, 0.6) !important; 
             backdrop-filter: blur(4px); 
@@ -166,11 +177,8 @@
             padding: 8px 14px !important; 
             margin-bottom: 8px !important; 
             flex-shrink: 0;
-            
-            /* Lebar maksimal diperkecil sedikit agar aman tidak menembus batas bingkai */
             max-width: 230px !important; 
             width: fit-content; 
-            
             word-wrap: break-word; 
             overflow-wrap: break-word;
             white-space: normal;
@@ -214,8 +222,12 @@
         </div>
     </div>
 
+    <!-- HALAMAN JOIN PESERTA DENGAN TAMBAHAN PERINGATAN -->
     <div id="joinPage" class="hidden">
         <h2>Join Obrolan! 💬</h2>
+        <div class="warning-box">
+            ⚠️ <b>Peringatan:</b> Harap gunakan bahasa yang sopan dan bertanggung jawab. Pesan Anda akan langsung tampil di layar utama!
+        </div>
         <input type="text" id="username" placeholder="Siapa namamu?">
         <button class="main-btn" onclick="joinRoom()">Gaskeun 🚀</button>
     </div>
