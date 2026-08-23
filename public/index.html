@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Live Chat - Modern Clean Style</title>
+    <title>Live Chat - WhatsApp Bubble Style</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@700&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -114,7 +114,7 @@
         h2 { font-family: 'Fredoka One', cursive; color: #f39c12; text-align: center; text-shadow: 2px 2px 0px #000;}
 
         /* ==========================================
-           TAMPILAN KHUSUS OBS (BINGKAI NEON MODE)
+           TAMPILAN KHUSUS OBS (BINGKAI NEON & BUBBLE CHAT TRANSPARAN)
            ========================================== */
         body.videotron-mode {
             background-color: rgba(0, 0, 0, 0) !important; 
@@ -130,36 +130,12 @@
             flex-direction: column;
             width: 100%;
             height: 100%;
-            /* JARAK AMAN DIPERBESAR: Atas 40px, Kanan 30px, Bawah 100px, Kiri 30px */
-            padding: 40px 30px 100px 30px; 
+            padding: 40px 30px 40px 30px; 
             box-sizing: border-box;
         }
 
         body.videotron-mode #displayQrWrapper {
-            background: #ffffff;
-            padding: 10px;
-            border: 4px solid #000;
-            border-radius: 0px;
-            box-shadow: 4px 4px 0px #000;
-            text-align: center;
-            margin-bottom: 20px;
-            align-self: center; 
-            flex-shrink: 0;
-        }
-
-        body.videotron-mode #displayQrCode canvas, 
-        body.videotron-mode #displayQrCode img {
-            display: block;
-            margin: 0 auto;
-        }
-
-        body.videotron-mode #displayQrWrapper span {
-            display: block;
-            margin-top: 5px;
-            font-family: 'Fredoka One', cursive;
-            font-size: 15px;
-            color: #000;
-            letter-spacing: 1px;
+            display: none !important;
         }
 
         body.videotron-mode #chatBox {
@@ -179,18 +155,20 @@
             margin-bottom: 0;
         }
 
+        /* GAYA BUBBLE CHAT SEPERTI WHATSAPP (TRANSPARAN NYAMAN DIBACA) */
         body.videotron-mode .msg {
-            background: transparent !important;
-            border: none !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            padding: 0 !important;
+            background: rgba(0, 0, 0, 0.45) !important; /* Latar belakang transparan semi-gelap */
+            backdrop-filter: blur(4px); /* Efek blur halus di belakang bubble */
+            border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Garis tepi tipis elegan */
+            border-radius: 14px !important; /* Sudut melengkung ala WhatsApp */
+            padding: 8px 14px !important; 
             margin-bottom: 8px !important; 
             flex-shrink: 0;
-            max-width: 100%; 
+            max-width: 95%; 
             word-wrap: break-word; 
             overflow-wrap: break-word;
             white-space: normal;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         body.videotron-mode .msg::after, 
@@ -199,19 +177,18 @@
         }
 
         body.videotron-mode .msg strong {
-            font-size: 28px; 
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
-            margin-bottom: 0px;
-            display: inline;
-            margin-right: 8px;
+            font-size: 22px; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8); 
+            margin-bottom: 2px;
+            display: block; /* Nama di atas, isi pesan di bawahnya ala WhatsApp */
         }
 
         body.videotron-mode .msg span.text {
             color: #ffffff !important; 
-            font-size: 28px; 
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.9); 
+            font-size: 24px; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8); 
             font-weight: 700;
-            line-height: 1.2;
+            line-height: 1.3;
         }
     </style>
 </head>
@@ -219,8 +196,7 @@
 
     <div id="homePage">
         <h2>Admin Panel ⚙️</h2>
-        <button class="main-btn" onclick="createRoom()">Buka Room Baru</button>
-        <div id="adminQrContainer" style="margin-top: 20px; text-align: center;">
+        <div id="adminQrContainer" style="margin-top: 10px; text-align: center;">
             <div id="adminQrcode" style="display: flex; justify-content: center; margin-bottom: 15px;"></div>
             <div id="roomLink" style="background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000; margin-bottom:10px; font-weight: bold;"></div>
             <div id="displayLink" style="background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000; font-weight: bold;"></div>
@@ -271,6 +247,8 @@
         const roomParam = urlParams.get('room');
         const isDisplay = urlParams.get('display') === 'true'; 
 
+        const FIXED_ROOM_ID = 'main-room';
+
         if (roomParam) {
             currentRoomId = roomParam;
             document.getElementById('homePage').classList.add('hidden');
@@ -280,47 +258,33 @@
                 currentUser = 'Sistem Display';
                 socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
                 
-                document.getElementById('displayQrWrapper').classList.remove('hidden');
-                const mobileUrl = `${window.location.origin}/?room=${currentRoomId}`;
-                
-                new QRCode(document.getElementById("displayQrcode"), {
-                    text: mobileUrl, 
-                    width: 140, 
-                    height: 140, 
-                    colorDark : "#000", 
-                    colorLight : "#fff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-
                 document.getElementById('chatPage').classList.remove('hidden');
                 document.getElementById('inputArea').classList.add('hidden'); 
             } else {
                 document.getElementById('joinPage').classList.remove('hidden');
             }
-        }
+        } else {
+            window.addEventListener('DOMContentLoaded', () => {
+                const baseUrl = window.location.origin;
+                const mobileUrl = `${baseUrl}/?room=${FIXED_ROOM_ID}`;
+                const obsUrl = `${baseUrl}/?room=${FIXED_ROOM_ID}&display=true`;
+                
+                socket.emit('joinRoom', { roomId: FIXED_ROOM_ID, username: 'AdminPanel' });
 
-        function createRoom() {
-            socket.emit('createRoom');
-        }
-
-        socket.on('roomCreated', (roomId) => {
-            const baseUrl = window.location.origin;
-            const mobileUrl = `${baseUrl}/?room=${roomId}`;
-            const vmixUrl = `${baseUrl}/?room=${roomId}&display=true`;
-            
-            document.getElementById('adminQrcode').innerHTML = '';
-            new QRCode(document.getElementById("adminQrcode"), {
-                text: mobileUrl, 
-                width: 180, 
-                height: 180, 
-                colorDark : "#000", 
-                colorLight : "#fff",
-                correctLevel: QRCode.CorrectLevel.H
+                document.getElementById('adminQrcode').innerHTML = '';
+                new QRCode(document.getElementById("adminQrcode"), {
+                    text: mobileUrl, 
+                    width: 180, 
+                    height: 180, 
+                    colorDark : "#000", 
+                    colorLight : "#fff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                
+                document.getElementById('roomLink').innerHTML = `<strong>Link HP (Tetap/Permanen):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
+                document.getElementById('displayLink').innerHTML = `<strong>Link OBS (Tetap/Permanen):</strong><br><a href="${obsUrl}" target="_blank">${obsUrl}</a>`;
             });
-            
-            document.getElementById('roomLink').innerHTML = `<strong>Link HP (Bagikan ke peserta):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
-            document.getElementById('displayLink').innerHTML = `<strong>Link vMix/OBS (Masukkan ke Browser Source):</strong><br><a href="${vmixUrl}" target="_blank">${vmixUrl}</a>`;
-        });
+        }
 
         function joinRoom() {
             const name = document.getElementById('username').value.trim();
@@ -345,6 +309,7 @@
 
         socket.on('message', (data) => {
             if (data.username === 'Sistem' && data.text.includes('Sistem Display')) return;
+            if (data.username === 'AdminPanel') return;
 
             const chatBox = document.getElementById('chatBox');
             const msgDiv = document.createElement('div');
@@ -353,14 +318,14 @@
             const userColor = data.username === 'Sistem' ? '#aaaaaa' : getColorForUser(data.username);
             
             if (data.type === 'text') {
-                msgDiv.innerHTML = `<strong style="color: ${userColor};">${data.username}:</strong> <span class="text">${data.text}</span>`;
+                msgDiv.innerHTML = `<strong style="color: ${userColor};">${data.username}</strong><span class="text">${data.text}</span>`;
             }
             
             chatBox.appendChild(msgDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
             if (document.body.classList.contains('videotron-mode')) {
-                const maxMessages = 10; 
+                const maxMessages = 10; // Tetap mempertahankan 10 riwayat pesan di dalam bingkai
                 while (chatBox.childElementCount > maxMessages) {
                     chatBox.removeChild(chatBox.firstElementChild);
                 }
