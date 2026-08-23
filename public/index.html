@@ -158,7 +158,7 @@
 
         /* GAYA BUBBLE CHAT SEPERTI WHATSAPP (DIKUNCI MAKSIMAL 4-5 KATA) */
         body.videotron-mode .msg {
-            background: rgba(0, 0, 0, 0.6) !important; /* Dibuat sedikit lebih gelap agar teks makin jelas */
+            background: rgba(0, 0, 0, 0.6) !important; /* Latar belakang lebih gelap agar jelas */
             backdrop-filter: blur(4px); 
             border: 1px solid rgba(255, 255, 255, 0.2) !important; 
             border-radius: 14px !important; 
@@ -201,6 +201,7 @@
 
     <div id="homePage">
         <h2>Admin Panel ⚙️</h2>
+        <!-- TOMBOL BUKA ROOM BARU DIKEMBALIKAN AGAR SERVER BERFUNGSI NORMAL -->
         <button class="main-btn" onclick="createRoom()">Buka Room Baru</button>
         <div id="adminQrContainer" style="margin-top: 20px; text-align: center;">
             <div id="adminQrcode" style="display: flex; justify-content: center; margin-bottom: 15px;"></div>
@@ -253,8 +254,6 @@
         const roomParam = urlParams.get('room');
         const isDisplay = urlParams.get('display') === 'true'; 
 
-        const FIXED_ROOM_ID = 'main-room';
-
         if (roomParam) {
             currentRoomId = roomParam;
             document.getElementById('homePage').classList.add('hidden');
@@ -269,28 +268,30 @@
             } else {
                 document.getElementById('joinPage').classList.remove('hidden');
             }
-        } else {
-            window.addEventListener('DOMContentLoaded', () => {
-                const baseUrl = window.location.origin;
-                const mobileUrl = `${baseUrl}/?room=${FIXED_ROOM_ID}`;
-                const obsUrl = `${baseUrl}/?room=${FIXED_ROOM_ID}&display=true`;
-                
-                socket.emit('joinRoom', { roomId: FIXED_ROOM_ID, username: 'AdminPanel' });
-
-                document.getElementById('adminQrcode').innerHTML = '';
-                new QRCode(document.getElementById("adminQrcode"), {
-                    text: mobileUrl, 
-                    width: 180, 
-                    height: 180, 
-                    colorDark : "#000", 
-                    colorLight : "#fff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-                
-                document.getElementById('roomLink').innerHTML = `<strong>Link HP (Tetap/Permanen):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
-                document.getElementById('displayLink').innerHTML = `<strong>Link OBS (Tetap/Permanen):</strong><br><a href="${obsUrl}" target="_blank">${obsUrl}</a>`;
-            });
         }
+
+        function createRoom() {
+            socket.emit('createRoom');
+        }
+
+        socket.on('roomCreated', (roomId) => {
+            const baseUrl = window.location.origin;
+            const mobileUrl = `${baseUrl}/?room=${roomId}`;
+            const vmixUrl = `${baseUrl}/?room=${roomId}&display=true`;
+            
+            document.getElementById('adminQrcode').innerHTML = '';
+            new QRCode(document.getElementById("adminQrcode"), {
+                text: mobileUrl, 
+                width: 180, 
+                height: 180, 
+                colorDark : "#000", 
+                colorLight : "#fff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            document.getElementById('roomLink').innerHTML = `<strong>Link HP (Bagikan ke peserta):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
+            document.getElementById('displayLink').innerHTML = `<strong>Link OBS (Masukkan ke Browser Source):</strong><br><a href="${vmixUrl}" target="_blank">${vmixUrl}</a>`;
+        });
 
         function joinRoom() {
             const name = document.getElementById('username').value.trim();
