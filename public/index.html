@@ -113,14 +113,13 @@
 
         h2 { font-family: 'Fredoka One', cursive; color: #f39c12; text-align: center; text-shadow: 2px 2px 0px #000;}
 
-        /* Kotak Peringatan Diperbesar */
         .warning-box {
             background: #fff3cd;
             color: #856404;
             border: 2px solid #ffeeba;
             border-radius: 10px;
             padding: 12px 14px;
-            font-size: 14px; /* FONT DIPERBESAR */
+            font-size: 14px;
             font-weight: 700;
             text-align: center;
             margin-bottom: 15px;
@@ -134,7 +133,7 @@
             border: 2px solid #ffeeba;
             border-radius: 10px;
             padding: 10px 12px;
-            font-size: 13px; /* FONT DIPERBESAR */
+            font-size: 13px;
             font-weight: 700;
             text-align: center;
             margin-top: 10px;
@@ -304,9 +303,27 @@
                 document.getElementById('chatPage').classList.remove('hidden');
                 document.getElementById('inputArea').classList.add('hidden'); 
             } else {
-                document.getElementById('joinPage').classList.remove('hidden');
+                // FITUR PENYIMPANAN SESI (LOCALSTORAGE): 
+                // Cek apakah user sebelumnya sudah pernah isi nama di room ini
+                const savedUser = localStorage.getItem('chat_user_' + currentRoomId);
+                if (savedUser) {
+                    currentUser = savedUser;
+                    socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
+                    document.getElementById('joinPage').classList.add('hidden');
+                    document.getElementById('chatPage').classList.remove('hidden');
+                } else {
+                    document.getElementById('joinPage').classList.remove('hidden');
+                }
             }
         }
+
+        // AUTO-RECONNECT SOCKET: 
+        // Jika HP bangun dari sleep mode atau internet tersambung kembali, otomatis masuk room lagi
+        socket.on('connect', () => {
+            if (currentRoomId && currentUser) {
+                socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
+            }
+        });
 
         function createRoom() {
             socket.emit('createRoom');
@@ -335,6 +352,10 @@
             const name = document.getElementById('username').value.trim();
             if (!name) return alert('Isi nama dulu dong!');
             currentUser = name;
+            
+            // Simpan nama ke memori HP agar aman jika tab ter-refresh
+            localStorage.setItem('chat_user_' + currentRoomId, currentUser);
+
             socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
             
             document.getElementById('joinPage').classList.add('hidden');
@@ -349,7 +370,7 @@
                     roomId: currentRoomId, username: currentUser, text: text, type: 'text'
                 });
             }
-            document.getElementById('messageInput').value = '';
+            document.getElementById('messageInput'].value = '';
         }
 
         socket.on('message', (data) => {
