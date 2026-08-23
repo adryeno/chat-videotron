@@ -25,12 +25,12 @@
 
         /* KOTAK CHAT KHUSUS HP (BISA DI-SCROLL NORMAL) */
         #chatBox { 
-            height: 60vh; 
+            height: 56vh; 
             border: 3px solid #000;
             border-radius: 15px; 
             overflow-y: scroll; 
             padding: 15px; 
-            margin-bottom: 12px; 
+            margin-bottom: 10px; 
             background: #eef2f3; 
             box-shadow: 4px 4px 0px #000;
             display: flex;
@@ -113,19 +113,19 @@
 
         h2 { font-family: 'Fredoka One', cursive; color: #f39c12; text-align: center; text-shadow: 2px 2px 0px #000;}
 
-        /* Kotak Peringatan */
+        /* Kotak Peringatan Diperbesar */
         .warning-box {
             background: #fff3cd;
             color: #856404;
             border: 2px solid #ffeeba;
             border-radius: 10px;
-            padding: 10px 12px;
-            font-size: 12px;
+            padding: 12px 14px;
+            font-size: 14px; /* FONT DIPERBESAR */
             font-weight: 700;
             text-align: center;
             margin-bottom: 15px;
             box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
         .chat-warning {
@@ -133,8 +133,8 @@
             color: #856404;
             border: 2px solid #ffeeba;
             border-radius: 10px;
-            padding: 8px 12px;
-            font-size: 11px;
+            padding: 10px 12px;
+            font-size: 13px; /* FONT DIPERBESAR */
             font-weight: 700;
             text-align: center;
             margin-top: 10px;
@@ -167,7 +167,6 @@
             display: none !important;
         }
 
-        /* Sembunyikan peringatan di OBS */
         body.videotron-mode .chat-warning {
             display: none !important;
         }
@@ -245,7 +244,7 @@
     <div id="joinPage" class="hidden">
         <h2>Join Obrolan! 💬</h2>
         <div class="warning-box">
-            ⚠️ Harap gunakan bahasa yang sopan dan bertanggung jawab. Pesan Anda akan langsung tampil di layar utama! segala akibat yang timbul bukan tanggung jawab kami, gunakan secara bijak !
+            ⚠️ Harap gunakan bahasa yang sopan dan bertanggung jawab. Pesan Anda akan langsung tampil di layar utama!
         </div>
         <input type="text" id="username" placeholder="Siapa namamu?">
         <button class="main-btn" onclick="joinRoom()">Gaskeun 🚀</button>
@@ -264,7 +263,6 @@
             <button id="sendButton" onclick="sendMessage()">KIRIM 🚀</button>
         </div>
         
-        <!-- PERINGATAN DI BAWAH KOLOM KIRIM CHAT -->
         <div class="chat-warning">
             ⚠️ Harap gunakan bahasa yang sopan dan bertanggung jawab. Pesan Anda akan langsung tampil di layar utama! Segala akibat yang timbul bukan tanggung jawab kami, gunakan secara bijak.
         </div>
