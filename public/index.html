@@ -130,7 +130,7 @@
             flex-direction: column;
             width: 100%;
             height: 100%;
-            padding: 40px 30px 40px 30px; 
+            padding: 40px 10px 40px 10px; 
             box-sizing: border-box;
         }
 
@@ -152,20 +152,24 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-end; 
-            align-items: flex-start;
+            align-items: center; /* Posisikan chat di tengah bingkai */
             margin-bottom: 0;
         }
 
-        /* GAYA BUBBLE CHAT SEPERTI WHATSAPP (TRANSPARAN NYAMAN DIBACA) */
+        /* GAYA BUBBLE CHAT SEPERTI WHATSAPP (DIKUNCI MAKSIMAL 4-5 KATA) */
         body.videotron-mode .msg {
-            background: rgba(0, 0, 0, 0.45) !important; 
+            background: rgba(0, 0, 0, 0.6) !important; /* Dibuat sedikit lebih gelap agar teks makin jelas */
             backdrop-filter: blur(4px); 
             border: 1px solid rgba(255, 255, 255, 0.2) !important; 
             border-radius: 14px !important; 
             padding: 8px 14px !important; 
             margin-bottom: 8px !important; 
             flex-shrink: 0;
-            max-width: 95%; 
+            
+            /* KUNCI LEBAR KOTAK (Memaksa teks turun setelah ~4 kata) */
+            max-width: 280px !important; 
+            width: fit-content; 
+            
             word-wrap: break-word; 
             overflow-wrap: break-word;
             white-space: normal;
@@ -249,6 +253,8 @@
         const roomParam = urlParams.get('room');
         const isDisplay = urlParams.get('display') === 'true'; 
 
+        const FIXED_ROOM_ID = 'main-room';
+
         if (roomParam) {
             currentRoomId = roomParam;
             document.getElementById('homePage').classList.add('hidden');
@@ -258,47 +264,33 @@
                 currentUser = 'Sistem Display';
                 socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
                 
-                document.getElementById('displayQrWrapper').classList.remove('hidden');
-                const mobileUrl = `${window.location.origin}/?room=${currentRoomId}`;
-                
-                new QRCode(document.getElementById("displayQrcode"), {
-                    text: mobileUrl, 
-                    width: 140, 
-                    height: 140, 
-                    colorDark : "#000", 
-                    colorLight : "#fff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-
                 document.getElementById('chatPage').classList.remove('hidden');
                 document.getElementById('inputArea').classList.add('hidden'); 
             } else {
                 document.getElementById('joinPage').classList.remove('hidden');
             }
-        }
+        } else {
+            window.addEventListener('DOMContentLoaded', () => {
+                const baseUrl = window.location.origin;
+                const mobileUrl = `${baseUrl}/?room=${FIXED_ROOM_ID}`;
+                const obsUrl = `${baseUrl}/?room=${FIXED_ROOM_ID}&display=true`;
+                
+                socket.emit('joinRoom', { roomId: FIXED_ROOM_ID, username: 'AdminPanel' });
 
-        function createRoom() {
-            socket.emit('createRoom');
-        }
-
-        socket.on('roomCreated', (roomId) => {
-            const baseUrl = window.location.origin;
-            const mobileUrl = `${baseUrl}/?room=${roomId}`;
-            const vmixUrl = `${baseUrl}/?room=${roomId}&display=true`;
-            
-            document.getElementById('adminQrcode').innerHTML = '';
-            new QRCode(document.getElementById("adminQrcode"), {
-                text: mobileUrl, 
-                width: 180, 
-                height: 180, 
-                colorDark : "#000", 
-                colorLight : "#fff",
-                correctLevel: QRCode.CorrectLevel.H
+                document.getElementById('adminQrcode').innerHTML = '';
+                new QRCode(document.getElementById("adminQrcode"), {
+                    text: mobileUrl, 
+                    width: 180, 
+                    height: 180, 
+                    colorDark : "#000", 
+                    colorLight : "#fff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                
+                document.getElementById('roomLink').innerHTML = `<strong>Link HP (Tetap/Permanen):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
+                document.getElementById('displayLink').innerHTML = `<strong>Link OBS (Tetap/Permanen):</strong><br><a href="${obsUrl}" target="_blank">${obsUrl}</a>`;
             });
-            
-            document.getElementById('roomLink').innerHTML = `<strong>Link HP (Bagikan ke peserta):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
-            document.getElementById('displayLink').innerHTML = `<strong>Link vMix/OBS (Masukkan ke Browser Source):</strong><br><a href="${vmixUrl}" target="_blank">${vmixUrl}</a>`;
-        });
+        }
 
         function joinRoom() {
             const name = document.getElementById('username').value.trim();
@@ -323,6 +315,7 @@
 
         socket.on('message', (data) => {
             if (data.username === 'Sistem' && data.text.includes('Sistem Display')) return;
+            if (data.username === 'AdminPanel') return;
 
             const chatBox = document.getElementById('chatBox');
             const msgDiv = document.createElement('div');
