@@ -113,13 +113,14 @@
 
         h2 { font-family: 'Fredoka One', cursive; color: #f39c12; text-align: center; text-shadow: 2px 2px 0px #000;}
 
+        /* Kotak Peringatan Diperbesar */
         .warning-box {
             background: #fff3cd;
             color: #856404;
             border: 2px solid #ffeeba;
             border-radius: 10px;
             padding: 12px 14px;
-            font-size: 14px;
+            font-size: 14px; /* FONT DIPERBESAR */
             font-weight: 700;
             text-align: center;
             margin-bottom: 15px;
@@ -133,7 +134,7 @@
             border: 2px solid #ffeeba;
             border-radius: 10px;
             padding: 10px 12px;
-            font-size: 13px;
+            font-size: 13px; /* FONT DIPERBESAR */
             font-weight: 700;
             text-align: center;
             margin-top: 10px;
@@ -235,8 +236,8 @@
         <button class="main-btn" onclick="createRoom()">Buka Room Baru</button>
         <div id="adminQrContainer" style="margin-top: 20px; text-align: center;">
             <div id="adminQrcode" style="display: flex; justify-content: center; margin-bottom: 15px;"></div>
-            <div id="roomLink" style="background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000; margin-bottom:10px; font-weight: bold; word-break: break-all;"></div>
-            <div id="displayLink" style="background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000; font-weight: bold; word-break: break-all;"></div>
+            <div id="roomLink" style="background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000; margin-bottom:10px; font-weight: bold;"></div>
+            <div id="displayLink" style="background: #fff; padding: 10px; border-radius: 8px; border: 3px solid #000; font-weight: bold;"></div>
         </div>
     </div>
 
@@ -303,25 +304,9 @@
                 document.getElementById('chatPage').classList.remove('hidden');
                 document.getElementById('inputArea').classList.add('hidden'); 
             } else {
-                // Sesi tersimpan aman via LocalStorage agar tidak reset saat layar redup/refresh
-                const savedUser = localStorage.getItem('chat_user_' + currentRoomId);
-                if (savedUser) {
-                    currentUser = savedUser;
-                    socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
-                    document.getElementById('joinPage').classList.add('hidden');
-                    document.getElementById('chatPage').classList.remove('hidden');
-                } else {
-                    document.getElementById('joinPage').classList.remove('hidden');
-                }
+                document.getElementById('joinPage').classList.remove('hidden');
             }
         }
-
-        // Auto-Reconnect saat HP bangun dari sleep mode
-        socket.on('connect', () => {
-            if (currentRoomId && currentUser && currentUser !== 'Sistem Display') {
-                socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
-            }
-        });
 
         function createRoom() {
             socket.emit('createRoom');
@@ -343,15 +328,13 @@
             });
             
             document.getElementById('roomLink').innerHTML = `<strong>Link HP (Bagikan ke peserta):</strong><br><a href="${mobileUrl}" target="_blank">${mobileUrl}</a>`;
-            document.getElementById('displayLink').innerHTML = `<strong>Link OBS (Masukkan ke Browser Source):</strong><br><a href="${vmixUrl}" target="_blank">${vmixUrl}</a>`;
+            document.getElementById('displayLink').innerHTML = `<strong>Link vMix/OBS (Masukkan ke Browser Source):</strong><br><a href="${vmixUrl}" target="_blank">${vmixUrl}</a>`;
         });
 
         function joinRoom() {
             const name = document.getElementById('username').value.trim();
             if (!name) return alert('Isi nama dulu dong!');
             currentUser = name;
-            
-            localStorage.setItem('chat_user_' + currentRoomId, currentUser);
             socket.emit('joinRoom', { roomId: currentRoomId, username: currentUser });
             
             document.getElementById('joinPage').classList.add('hidden');
